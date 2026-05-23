@@ -1,7 +1,7 @@
-# ESP32 DevKit V2 Board - รายละเอียด
+# ESP32 DevKit V1 Board - รายละเอียด
 
 ## ข้อมูลทั่วไป
-บอร์ด ESP32 DevKit V2 เป็นแพลตฟอร์มพัฒนาสำหรับ ESP32 ซึ่งเป็นไมโครคอนโทรลเลอร์แบบ SoC ที่ปรับปรุงเพื่อการเชื่อมต่ออินเทอร์เน็ต มีหน่วยความจำขนาดใหญ่ และความสามารถในการประมวลผลที่ทรงพลัง
+บอร์ด ESP32 DevKit V1 (DOIT) เป็นแพลตฟอร์มพัฒนาสำหรับ ESP32 ซึ่งเป็นไมโครคอนโทรลเลอร์แบบ SoC ที่ปรับปรุงเพื่อการเชื่อมต่ออินเทอร์เน็ต มีหน่วยความจำขนาดใหญ่ และความสามารถในการประมวลผลที่ทรงพลัง
 
 ## สเปซิฟิเคชัน (Specifications)
 
@@ -47,7 +47,7 @@
 
 ```
 ┌─────────────────────────────────────────┐
-│        ESP32 DevKit V2 Board            │
+│        ESP32 DevKit V1 Board            │
 ├─────────────────────────────────────────┤
 │ USB-C/Micro USB                         │
 │                                         │
@@ -80,11 +80,13 @@
 
 ### 2. ตั้งค่า Arduino IDE / PlatformIO
 ```ini
-[env:esp32]
+[env:esp32doit-devkit-v1]
 platform = espressif32
 board = esp32doit-devkit-v1
 framework = arduino
 monitor_speed = 115200
+lib_deps =
+    bblanchon/ArduinoJson @ ^7.0.0
 ```
 
 ### 3. Upload โปรแกรม
@@ -294,6 +296,26 @@ void loop() {
 - ต้องใช้ Debouncing เพื่อหลีกเลี่ยง Switch Bounce
 - มีค่า Pull-up External 10kΩ
 
+### Weather & AQI (OpenWeatherMap API)
+
+โปรเจกต์นี้ดึงข้อมูลสภาพอากาศและคุณภาพอากาศผ่าน Wi-Fi ทุก 2 นาที
+
+| ข้อมูล | API Endpoint | หมายเหตุ |
+|---|---|---|
+| อุณหภูมิ, ความชื้น, ลม | `/data/2.5/weather` | เมือง: Nakhon Si Thammarat, TH |
+| AQI, PM2.5, PM10, CO, NO₂, O₃ | `/data/2.5/air_pollution` | ใช้พิกัด lat/lon จาก weather API |
+
+**Credentials** — เก็บใน `include/secrets.h` (ไม่ถูก commit ขึ้น GitHub):
+```cpp
+#define WIFI_SSID     "your_wifi_ssid"
+#define WIFI_PASSWORD "your_wifi_password"
+#define OWM_API_KEY   "your_openweathermap_api_key"
+```
+
+> API Key ฟรีจาก [openweathermap.org](https://openweathermap.org/api)
+
+---
+
 ### OLED Display 0.96" (I2C)
 **หมายเหตุ**: จอ OLED 0.96 นิ้ว ความละเอียด 128x64 pixels ใช้โปรโตคอล I2C (SSD1306 driver)
 
@@ -415,4 +437,4 @@ void setup() {
 - [PlatformIO ESP32 Support](https://platformio.org/boards/espressif32)
 
 ---
-**หมายเหตุ**: เอกสารนี้เป็นข้อมูลอ้างอิงสำหรับ ESP32 DevKit V2 Board สำหรับโปรเจค IoT
+**หมายเหตุ**: เอกสารนี้เป็นข้อมูลอ้างอิงสำหรับ ESP32 DevKit V1 (DOIT) Board สำหรับโปรเจค ESP32-Relay-Weather

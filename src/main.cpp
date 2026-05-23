@@ -2,8 +2,9 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
+#include <time.h>
 #include "secrets.h"  // WiFi SSID/Password และ API Key (ไม่ถูก commit)
-#define OWM_CITY      "Nakhon Si Thammarat"
+#define OWM_CITY      "Bangkok"
 #define OWM_COUNTRY   "TH"
 #define WEATHER_INTERVAL_MS  (2UL * 60UL * 1000UL)  // 2 นาที
 
@@ -48,6 +49,14 @@ RelayState relay[3] = {
 
 unsigned long lastWeatherFetch = 0;
 
+String getTimeStr() {
+  struct tm t;
+  if (!getLocalTime(&t)) return "--:--:--";
+  char buf[9];
+  strftime(buf, sizeof(buf), "%H:%M:%S", &t);
+  return String(buf);
+}
+
 void toggleRelay(RelayState &r) {
   r.on = !r.on;
   digitalWrite(r.pin, r.on ? RELAY_ON : RELAY_OFF);
@@ -89,7 +98,7 @@ void fetchWeather() {
       lat = doc["coord"]["lat"];
       lon = doc["coord"]["lon"];
 
-      Serial.println("========== สภาพอากาศ นครศรีธรรมราช ==========");
+      Serial.printf("========== สภาพอากาศ กรุงเทพมหานคร [%s] ==========\n", getTimeStr().c_str());
       Serial.printf("  อุณหภูมิ    : %.1f C (รู้สึกเหมือน %.1f C)\n", temp, feels);
       Serial.printf("  ความชื้น    : %d %%\n", humidity);
       Serial.printf("  ความเร็วลม  : %.1f m/s\n", windSpeed);
@@ -150,6 +159,8 @@ void setup() {
     Serial.print(".");
   }
   Serial.printf("\nWiFi connected — IP: %s\n", WiFi.localIP().toString().c_str());
+
+  configTime(7 * 3600, 0, "pool.ntp.org", "time.nist.gov");  // UTC+7 (Thailand)
 
   for (int i = 0; i < 3; i++) {
     pinMode(relay[i].pin, OUTPUT);
